@@ -1,0 +1,48 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Contacto | Fer — Piloto de Drones">
+  <section class="pt-32 pb-20 px-6 max-w-3xl mx-auto">
+    <p class="text-lime-400 uppercase tracking-[0.3em] text-sm mb-4">Contacto</p>
+    <h1 class="text-5xl md:text-6xl font-black">HABLEMOS</h1>
+    <p class="mt-6 text-neutral-400 text-lg">Cuéntame tu proyecto y te respondo en menos de 24h.</p>
+
+    <form class="mt-10 space-y-6" name="contacto" method="POST" data-netlify="true">
+      <div class="grid md:grid-cols-2 gap-6">
+        <label class="block">
+          <span class="text-sm uppercase tracking-wider text-neutral-400">Nombre</span>
+          <input required name="nombre" type="text" placeholder="Tu nombre"
+            class="mt-2 w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-lime-400" />
+        </label>
+        <label class="block">
+          <span class="text-sm uppercase tracking-wider text-neutral-400">Email</span>
+          <input required name="email" type="email" placeholder="hola@email.com"
+            class="mt-2 w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-lime-400" />
+        </label>
+      </div>
+      <label class="block">
+        <span class="text-sm uppercase tracking-wider text-neutral-400">Tipo de proyecto</span>
+        <select name="tipo" class="mt-2 w-full bg-neutral-900 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-lime-400">
+          <option>Fotografía</option>
+          <option>Video</option>
+          <option>Arquitectura</option>
+          <option>Otro</option>
+        </select>
+      </label>
+      <label class="block">
+        <span class="text-sm uppercase tracking-wider text-neutral-400">Mensaje</span>
+        <textarea required name="mensaje" rows={5} placeholder="Cuéntame fechas, localización e idea..."
+          class="mt-2 w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-lime-400"></textarea>
+      </label>
+      <button type="submit" class="bg-lime-400 text-black font-semibold px-8 py-4 rounded-full hover:bg-lime-300 transition-colors">
+        Enviar mensaje
+      </button>
+    </form>
+
+    <div class="mt-12 text-neutral-500 text-sm">
+      <p>Email directo: hola@ferdrone.es</p>
+      <p>Tel: +34 600 000 000</p>
+    </div>
+  </section>
+</Layout>

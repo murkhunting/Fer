@@ -1,0 +1,77 @@
+---
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Fer — Piloto de Drones | Foto, Video y Arquitectura">
+  <!-- HERO -->
+  <section class="pt-32 pb-20 px-6 max-w-7xl mx-auto min-h-[85vh] flex flex-col justify-center">
+    <p class="hero-kicker text-lime-400 uppercase tracking-[0.3em] text-sm mb-6">Piloto de drones profesional</p>
+    <h1 class="hero-title text-5xl md:text-8xl font-black leading-[0.95] tracking-tight">
+      IMÁGENES<br />AÉREAS QUE<br /><span class="text-lime-400">ELEVAN</span> TU PROYECTO
+    </h1>
+    <p class="hero-sub mt-8 max-w-xl text-neutral-400 text-lg">
+      Fotografía, video y arquitectura con dron. Servicios profesionales para marcas,
+      inmobiliarias y productoras.
+    </p>
+    <div class="hero-cta mt-10 flex flex-wrap gap-4">
+      <a href="/contacto" class="bg-lime-400 text-black font-semibold px-8 py-4 rounded-full hover:bg-lime-300 transition-colors">
+        Pedir presupuesto
+      </a>
+      <a href="/video" class="border border-white/20 px-8 py-4 rounded-full hover:border-lime-400 hover:text-lime-400 transition-colors">
+        Ver trabajos
+      </a>
+    </div>
+  </section>
+
+  <!-- SERVICIOS -->
+  <section class="px-6 max-w-7xl mx-auto py-20">
+    <h2 class="reveal text-sm uppercase tracking-[0.3em] text-neutral-500 mb-10">Servicios</h2>
+    <div class="grid md:grid-cols-3 gap-6">
+      <a href="/fotografia" class="reveal group border border-white/10 rounded-2xl p-8 hover:border-lime-400/60 transition-colors bg-white/[0.02]">
+        <p class="text-4xl mb-4">📷</p>
+        <h3 class="text-2xl font-bold mb-2 group-hover:text-lime-400">Fotografía</h3>
+        <p class="text-neutral-400">Sesiones aéreas, eventos, paisaje y marca personal.</p>
+      </a>
+      <a href="/video" class="reveal group border border-white/10 rounded-2xl p-8 hover:border-lime-400/60 transition-colors bg-white/[0.02]">
+        <p class="text-4xl mb-4">🎬</p>
+        <h3 class="text-2xl font-bold mb-2 group-hover:text-lime-400">Video</h3>
+        <p class="text-neutral-400">Spots, FPV, seguimiento y producción completa.</p>
+      </a>
+      <a href="/arquitectura" class="reveal group border border-white/10 rounded-2xl p-8 hover:border-lime-400/60 transition-colors bg-white/[0.02]">
+        <p class="text-4xl mb-4">🏛️</p>
+        <h3 class="text-2xl font-bold mb-2 group-hover:text-lime-400">Arquitectura</h3>
+        <p class="text-neutral-400">Documentación de obra, inmobiliaria y patrimonio.</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="px-6 max-w-7xl mx-auto py-20 text-center">
+    <h2 class="reveal text-3xl md:text-5xl font-black">¿TIENES UN PROYECTO EN MENTE?</h2>
+    <a href="/contacto" class="reveal inline-block mt-8 bg-white text-black font-semibold px-8 py-4 rounded-full hover:bg-lime-400 transition-colors">
+      Hablemos
+    </a>
+  </section>
+</Layout>
+
+<script>
+  import gsap from "gsap";
+  import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  gsap.from(".hero-kicker", { y: 20, opacity: 0, duration: 0.8, ease: "power3.out" });
+  gsap.from(".hero-title", { y: 60, opacity: 0, duration: 1, delay: 0.1, ease: "power3.out" });
+  gsap.from(".hero-sub", { y: 30, opacity: 0, duration: 0.8, delay: 0.3, ease: "power3.out" });
+  gsap.from(".hero-cta", { y: 20, opacity: 0, duration: 0.8, delay: 0.45, ease: "power3.out" });
+
+  gsap.utils.toArray<HTMLElement>(".reveal").forEach((el) => {
+    gsap.from(el, {
+      y: 40,
+      opacity: 0,
+      duration: 0.9,
+      ease: "power3.out",
+      scrollTrigger: { trigger: el, start: "top 85%" },
+    });
+  });
+</script>

@@ -1,0 +1,52 @@
+---
+const links = [
+  { href: "/", label: "Inicio" },
+  { href: "/fotografia", label: "Fotografía" },
+  { href: "/video", label: "Video" },
+  { href: "/arquitectura", label: "Arquitectura" },
+  { href: "/about", label: "About me" },
+  { href: "/contacto", label: "Contacto" },
+];
+
+const pathname = Astro.url.pathname;
+---
+
+<header class="fixed top-0 inset-x-0 z-50 backdrop-blur-md bg-neutral-950/70 border-b border-white/10">
+  <nav class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+    <a href="/" class="font-bold tracking-widest text-lg uppercase" data-nav-logo>
+      Fer<span class="text-lime-400">.Drone</span>
+    </a>
+    <ul class="hidden md:flex items-center gap-6 text-sm uppercase tracking-wider">
+      {links.map((l) => (
+        <li>
+          <a
+            href={l.href}
+            class:list={[
+              "hover:text-lime-400 transition-colors",
+              pathname === l.href || (l.href !== "/" && pathname.startsWith(l.href))
+                ? "text-lime-400"
+                : "text-neutral-300",
+            ]}
+          >
+            {l.label}
+          </a>
+        </li>
+      ))}
+    </ul>
+    <a
+      href="/contacto"
+      class="hidden md:inline-flex text-sm font-semibold bg-lime-400 text-black px-4 py-2 rounded-full hover:bg-lime-300 transition-colors"
+    >
+      Contratar
+    </a>
+    <!-- Mobile simple nav -->
+    <details class="md:hidden relative">
+      <summary class="cursor-pointer text-sm uppercase tracking-wider list-none">Menú</summary>
+      <ul class="absolute right-0 top-10 w-48 bg-neutral-900 border border-white/10 rounded-xl p-4 flex flex-col gap-3 text-sm">
+        {links.map((l) => (
+          <li><a href={l.href} class="block py-1 text-neutral-200">{l.label}</a></li>
+        ))}
+      </ul>
+    </details>
+  </nav>
+</header>

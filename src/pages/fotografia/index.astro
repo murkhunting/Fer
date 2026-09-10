@@ -1,0 +1,28 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getByCategory } from "../../data/projects";
+const list = getByCategory("fotografia");
+---
+
+<Layout title="Fotografía con dron | Fer">
+  <section class="pt-32 pb-12 px-6 max-w-7xl mx-auto">
+    <p class="text-lime-400 uppercase tracking-[0.3em] text-sm mb-4">Portfolio</p>
+    <h1 class="text-5xl md:text-7xl font-black tracking-tight">FOTOGRAFÍA</h1>
+    <p class="mt-6 max-w-xl text-neutral-400">Proyectos de fotografía aérea. Sustituiremos estas tarjetas por fotos reales.</p>
+  </section>
+
+  <section class="px-6 max-w-7xl mx-auto pb-20 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {list.map((p) => (
+      <a href={`/fotografia/${p.slug}`} class="group border border-white/10 rounded-2xl overflow-hidden bg-white/[0.02] hover:border-lime-400/60 transition-colors">
+        <div class="aspect-[4/3] bg-gradient-to-br from-neutral-800 to-neutral-900 flex items-center justify-center text-5xl">
+          📷
+        </div>
+        <div class="p-6">
+          <h2 class="text-xl font-bold group-hover:text-lime-400">{p.title}</h2>
+          <p class="text-sm text-neutral-500 mt-1">{p.location} — {p.year}</p>
+          <p class="text-sm text-neutral-400 mt-3">{p.description}</p>
+        </div>
+      </a>
+    ))}
+  </section>
+</Layout>
