@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Admin — Fer</title>
+<style>
+  * { box-sizing: border-box; }
+  body { background: #09090b; color: #f4f4f5; font-family: system-ui, sans-serif; margin: 0; padding: 24px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1 { font-size: 1.6rem; }
+  .card { background: #18181b; border: 1px solid #27272a; border-radius: 14px; padding: 20px; margin: 16px 0; }
+  label { display: block; font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; color: #a1a1aa; margin: 12px 0 4px; }
+  input[type=text], input[type=number], input[type=password], textarea { width: 100%; background: #09090b; border: 1px solid #3f3f46; color: #fff; border-radius: 10px; padding: 10px 12px; }
+  input:focus, textarea:focus { outline: none; border-color: #a3e635; }
+  .tags { display: flex; gap: 12px; margin-top: 6px; flex-wrap: wrap; }
+  .tags label { display: flex; gap: 6px; align-items: center; color: #e4e4e7; text-transform: none; letter-spacing: normal; font-size: 1rem; margin: 0; }
+  button { background: #a3e635; color: #000; font-weight: 700; border: 0; border-radius: 999px; padding: 12px 24px; cursor: pointer; margin-top: 14px; }
+  button.ghost { background: transparent; color: #a3e635; border: 1px solid #a3e635; }
+  button.danger { background: transparent; color: #f87171; border: 1px solid #f87171; }
+  .msg { margin-top: 12px; font-size: .95rem; }
+  .ok { color: #a3e635; } .err { color: #f87171; }
+  .proj { display: flex; gap: 12px; align-items: center; justify-content: space-between; border-top: 1px solid #27272a; padding: 10px 0; }
+  .proj small { color: #a1a1aa; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 640px) { .row { grid-template-columns: 1fr; } }
+  [hidden] { display: none !important; }
+  .hint { font-size: .85rem; color: #71717a; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Admin — Proyectos</h1>
+  <p class="hint">Acceso solo con contraseña. Un proyecto mixto foto+video aparece en ambos apartados. La etiqueta Arquitectura sola no vale: añade foto o video.</p>
+
+  <div class="card" id="loginCard">
+    <label for="password">Contraseña</label>
+    <input type="password" id="password" autocomplete="current-password" placeholder="••••••••" />
+    <button id="loginBtn">Entrar</button>
+    <div class="msg" id="loginMsg"></div>
+  </div>
+
+  <div id="panel" hidden>
+    <div class="card">
+      <h2 style="margin:0">Proyectos publicados</h2>
+      <div id="list"></div>
+      <button class="ghost" id="logoutBtn">Cerrar sesión</button>
+    </div>
+
+    <div class="card">
+      <h2 style="margin:0" id="formTitle">Nuevo proyecto</h2>
+      <form id="f">
+        <input type="hidden" name="editSlug" id="editSlug" />
+        <input type="hidden" name="csrf" id="csrf" />
+        <div class="row">
+          <div><label>Título *</label><input type="text" name="title" id="title" required /></div>
+          <div><label>Slug (auto si vacío)</label><input type="text" name="slug" id="slug" placeholder="villa-mar" /></div>
+        </div>
+        <div class="row">
+          <div><label>Localización *</label><input type="text" name="location" id="location" required /></div>
+          <div><label>Cliente *</label><input type="text" name="client" id="client" required /></div>
+        </div>
+        <div class="row">
+          <div><label>Año *</label><input type="number" name="year" id="year" value="2025" min="2000" max="2030" required /></div>
+          <div><label>Video (URL YouTube/Vimeo)</label><input type="text" name="videoUrl" id="videoUrl" placeholder="https://..." /></div>
+        </div>
+        <label>Etiquetas *</label>
+        <div class="tags">
+          <label><input type="checkbox" name="tags" value="fotografia" checked /> Foto</label>
+          <label><input type="checkbox" name="tags" value="video" /> Video</label>
+          <label><input type="checkbox" name="tags" value="arquitectura" /> Arquitectura</label>
+        </div>
+        <label>Imagen principal * (JPG/PNG/WebP, max 8MB)</label>
+        <input type="file" name="cover" id="cover" accept="image/jpeg,image/png,image/webp" />
+        <label>Galería (varias, obligatoria si es Foto)</label>
+        <input type="file" name="gallery[]" id="gallery" multiple accept="image/jpeg,image/png,image/webp" />
+        <label><input type="checkbox" id="replaceGallery" style="width:auto" /> Sustituir galería existente (al editar)</label>
+        <label>Descripción *</label>
+        <textarea name="description" id="description" rows="4" required></textarea>
+        <button type="submit" id="saveBtn">Guardar y publicar</button>
+        <button type="button" class="ghost" id="cancelEdit" hidden>Cancelar edición</button>
+        <div class="msg" id="formMsg"></div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let CSRF = "";
+
+// ¿sesión activa? list.php devuelve 401 si no
+fetch("/api/list.php").then(r => {
+  if (r.ok) { r.json().then(renderList); showPanel(); }
+}).catch(() => {});
+
+function showPanel() {
+  $("loginCard").hidden = true;
+  $("panel").hidden = false;
+  fetch("/api/list.php").then(r => r.json()).then(renderList).catch(() => {});
+}
+
+$("loginBtn").onclick = async () => {
+  $("loginMsg").textContent = "";
+  const fd = new FormData();
+  fd.append("password", $("password").value);
+  const r = await fetch("/api/login.php", { method: "POST", body: fd });
+  const j = await r.json().catch(() => ({}));
+  if (r.ok && j.ok) { CSRF = j.csrf; $("csrf").value = CSRF; showPanel(); }
+  else $("loginMsg").innerHTML = '<span class="err">' + (j.error || "Error") + "</span>";
+};
+
+$("logoutBtn").onclick = async () => {
+  await fetch("/api/logout.php");
+  location.reload();
+};
+
+function renderList(items) {
+  const box = $("list");
+  if (!items || !items.length) { box.innerHTML = '<p class="hint">Aún no hay proyectos.</p>'; return; }
+  box.innerHTML = items.map(p =>
+    `<div class="proj"><div><strong>${p.title}</strong><br/><small>${p.tags.join(" · ")} — ${p.location} — ${p.client} — ${p.year}</small></div>
+    <div><button class="ghost" onclick='edit(${JSON.stringify(p.slug)})'>Editar</button>
+    <button class="danger" onclick='del(${JSON.stringify(p.slug)})'>Borrar</button></div></div>`
+  ).join("");
+  window._all = items;
+}
+
+window.edit = (slug) => {
+  const p = (window._all || []).find(x => x.slug === slug);
+  if (!p) return;
+  $("formTitle").textContent = "Editar: " + p.title;
+  $("editSlug").value = p.slug; $("slug").value = p.slug;
+  $("title").value = p.title; $("location").value = p.location || "";
+  $("client").value = p.client || ""; $("year").value = p.year || 2025;
+  $("videoUrl").value = p.videoUrl || ""; $("description").value = p.description || "";
+  document.querySelectorAll('input[name=tags]').forEach(c => { c.checked = (p.tags || []).includes(c.value); });
+  $("cancelEdit").hidden = false;
+  window.scrollTo({ top: document.getElementById("f").offsetTop - 20, behavior: "smooth" });
+};
+
+$("cancelEdit").onclick = () => {
+  $("f").reset(); $("editSlug").value = "";
+  $("formTitle").textContent = "Nuevo proyecto";
+  $("cancelEdit").hidden = true;
+};
+
+window.del = async (slug) => {
+  if (!confirm("¿Borrar '" + slug + "' y sus imágenes?")) return;
+  const fd = new FormData();
+  fd.append("slug", slug); fd.append("csrf", CSRF);
+  const r = await fetch("/api/delete.php", { method: "POST", body: fd });
+  if (r.ok) showPanel();
+  else alert("Error al borrar");
+};
+
+$("f").onsubmit = async (e) => {
+  e.preventDefault();
+  $("formMsg").textContent = "Subiendo...";
+  const tags = [...document.querySelectorAll('input[name=tags]:checked')].map(c => c.value);
+  if (!tags.includes("fotografia") && !tags.includes("video")) {
+    $("formMsg").innerHTML = '<span class="err">La etiqueta Arquitectura sola no vale: marca Foto o Video.</span>';
+    return;
+  }
+  const fd = new FormData($("f"));
+  fd.delete("tags"); tags.forEach(t => fd.append("tags[]", t));
+  fd.set("csrf", CSRF);
+  if ($("replaceGallery").checked) fd.append("replaceGallery", "1");
+  // input file "gallery" múltiple: FormData ya lo incluye si el name es gallery
+  const r = await fetch("/api/upload.php", { method: "POST", body: fd });
+  const j = await r.json().catch(() => ({}));
+  if (r.ok && j.ok) {
+    $("formMsg").innerHTML = '<span class="ok">Publicado. Slug: ' + j.slug + " — ya visible en la web.</span>";
+    $("f").reset(); $("editSlug").value = "";
+    $("formTitle").textContent = "Nuevo proyecto"; $("cancelEdit").hidden = true;
+    showPanel();
+  } else {
+    $("formMsg").innerHTML = '<span class="err">' + (j.error || "Error al subir") + "</span>";
+  }
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+[
+    {
+        "slug": "villa-mar",
+        "title": "Villa Mar",
+        "location": "Marbella",
+        "client": "Estudio Costa",
+        "year": 2025,
+        "tags": [
+            "fotografia",
+            "arquitectura"
+        ],
+        "cover": "\/proyectos-data\/seed-villa-mar\/cover.svg",
+        "gallery": [
+            "\/proyectos-data\/seed-villa-mar\/galeria\/foto1.svg",
+            "\/proyectos-data\/seed-villa-mar\/galeria\/foto2.svg"
+        ],
+        "videoUrl": "",
+        "description": "Serie de fotografía aérea para villa moderna. Proyecto de ejemplo."
+    },
+    {
+        "slug": "promo-inmobiliaria",
+        "title": "Promo inmobiliaria",
+        "location": "Madrid",
+        "client": "Inmo Prime",
+        "year": 2025,
+        "tags": [
+            "video",
+            "arquitectura"
+        ],
+        "cover": "\/proyectos-data\/seed-villa-mar\/cover.svg",
+        "gallery": [],
+        "videoUrl": "https:\/\/www.youtube.com\/watch?v=dQw4w9WgXcQ",
+        "description": "Video promocional con dron. Proyecto de ejemplo."
+    },
+    {
+        "slug": "evento-mixto",
+        "title": "Evento mixto foto+video",
+        "location": "Valencia",
+        "client": "Club Mar",
+        "year": 2024,
+        "tags": [
+            "fotografia",
+            "video"
+        ],
+        "cover": "\/proyectos-data\/seed-villa-mar\/cover.svg",
+        "gallery": [
+            "\/proyectos-data\/seed-villa-mar\/galeria\/foto1.svg"
+        ],
+        "videoUrl": "https:\/\/vimeo.com\/123456789",
+        "description": "Cobertura foto y video. Aparece en ambos apartados. Proyecto de ejemplo."
+    }
+]

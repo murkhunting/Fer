@@ -1,0 +1,26 @@
+---
+import type { Proyecto } from "../lib/proyectos";
+import { tagLabel } from "../lib/proyectos";
+
+interface Props {
+  proyecto: Proyecto;
+}
+
+const { proyecto: p } = Astro.props;
+const href = `/proyectos/${p.slug}`;
+---
+
+<a href={href} class="group border border-white/10 rounded-2xl overflow-hidden bg-white/[0.02] hover:border-lime-400/60 transition-colors">
+  <div class="aspect-[4/3] overflow-hidden bg-neutral-900">
+    <img src={p.cover} alt={p.title} loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+  </div>
+  <div class="p-6">
+    <div class="flex flex-wrap gap-2 mb-3">
+      {p.tags.map((t) => (
+        <span class="text-[11px] uppercase tracking-wider border border-lime-400/40 text-lime-300 rounded-full px-2.5 py-0.5">{tagLabel(t)}</span>
+      ))}
+    </div>
+    <h2 class="text-xl font-bold group-hover:text-lime-400">{p.title}</h2>
+    <p class="text-sm text-neutral-500 mt-1">{p.location} — {p.client} — {p.year}</p>
+  </div>
+</a>

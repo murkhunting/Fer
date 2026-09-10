@@ -1,0 +1,112 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import type { Proyecto } from "../../lib/proyectos";
+import { tagLabel, youtubeEmbed } from "../../lib/proyectos";
+import seed from "../../../public/proyectos-data/proyectos.json";
+
+export async function getStaticPaths() {
+  return (seed as Proyecto[]).map((p) => ({ params: { slug: p.slug } }));
+}
+
+const { slug } = Astro.params;
+const found = (seed as Proyecto[]).find((p) => p.slug === slug);
+if (!found) return Astro.redirect("/");
+// Render del seed en build; el script refresca con el JSON vivo del servidor.
+---
+
+<Layout title={`${found.title} — Fer`}>
+  <section class="pt-32 px-6 max-w-4xl mx-auto pb-20" id="detalle"
+    data-slug={found.slug}
+    data-title={found.title}
+    data-location={found.location}
+    data-client={found.client}
+    data-year={String(found.year)}
+    data-description={found.description}
+    data-cover={found.cover}
+    data-gallery={JSON.stringify(found.gallery ?? [])}
+    data-videourl={found.videoUrl ?? ""}
+    data-tags={JSON.stringify(found.tags ?? [])}
+  >
+    <a href="/" class="text-sm text-neutral-500 hover:text-lime-400">← Volver</a>
+    <div id="badges" class="flex flex-wrap gap-2 mt-6">
+      {found.tags.map((t) => (
+        <span class="text-xs uppercase tracking-wider border border-lime-400/40 text-lime-300 rounded-full px-3 py-1">{tagLabel(t)}</span>
+      ))}
+    </div>
+    <h1 id="titulo" class="text-4xl md:text-6xl font-black mt-4">{found.title}</h1>
+    <p id="meta" class="text-neutral-500 mt-3">{found.location} — {found.client} — {found.year}</p>
+    <img id="cover" src={found.cover} alt={found.title} class="mt-10 rounded-2xl w-full object-cover" />
+    <p id="desc" class="mt-8 text-lg text-neutral-300">{found.description}</p>
+
+    {found.tags.includes("fotografia") && found.gallery.length > 0 && (
+      <div id="galeriaWrap">
+        <h2 class="text-2xl font-bold mt-12 mb-6">Galería</h2>
+        <div id="galeria" class="grid md:grid-cols-2 gap-4">
+          {found.gallery.map((g) => (
+            <img src={g} alt={found.title} loading="lazy" class="rounded-xl w-full object-cover" />
+          ))}
+        </div>
+      </div>
+    )}
+
+    {found.tags.includes("video") && found.videoUrl && (
+      <div id="videoWrap">
+        <h2 class="text-2xl font-bold mt-12 mb-6">Video</h2>
+        {youtubeEmbed(found.videoUrl) ? (
+          <iframe src={youtubeEmbed(found.videoUrl)!} title={found.title} class="w-full aspect-video rounded-2xl" allow="accelerometer; autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>
+        ) : (
+          <a id="videoLink" href={found.videoUrl} target="_blank" rel="noopener" class="text-lime-400 underline">Ver video</a>
+        )}
+      </div>
+    )}
+
+    <a href="/contacto" class="inline-block mt-12 bg-lime-400 text-black font-semibold px-8 py-4 rounded-full">Quiero algo así</a>
+  </section>
+</Layout>
+
+<script>
+  import { tagLabel, youtubeEmbed } from "../../lib/proyectos";
+  const root = document.getElementById("detalle");
+  const slug = root?.dataset.slug;
+  if (slug) {
+    fetch("/proyectos-data/proyectos.json", { cache: "no-store" })
+      .then((r) => (r.ok ? r.json() : []))
+      .then((all) => {
+        const p = (all || []).find((x) => x.slug === slug);
+        if (!p || !root) return;
+        document.title = `${p.title} — Fer`;
+        const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+        set("titulo", p.title);
+        set("meta", `${p.location ?? ""} — ${p.client ?? ""} — ${p.year ?? ""}`);
+        set("desc", p.description ?? "");
+        const cover = document.getElementById("cover");
+        if (cover) { cover.src = p.cover; cover.alt = p.title; }
+        const badges = document.getElementById("badges");
+        if (badges) badges.innerHTML = (p.tags || []).map((t) => `<span class="text-xs uppercase tracking-wider border border-lime-400/40 text-lime-300 rounded-full px-3 py-1">${tagLabel(t)}</span>`).join("");
+        // galería
+        let gw = document.getElementById("galeriaWrap");
+        if (p.tags?.includes("fotografia") && p.gallery?.length) {
+          if (!gw) {
+            gw = document.createElement("div"); gw.id = "galeriaWrap";
+            gw.innerHTML = `<h2 class="text-2xl font-bold mt-12 mb-6">Galería</h2><div id="galeria" class="grid md:grid-cols-2 gap-4"></div>`;
+            root.appendChild(gw);
+          }
+          const g = document.getElementById("galeria");
+          if (g) g.innerHTML = p.gallery.map((src) => `<img src="${src}" alt="${p.title}" loading="lazy" class="rounded-xl w-full object-cover" />`).join("");
+        } else if (gw) gw.remove();
+        // video
+        let vw = document.getElementById("videoWrap");
+        if (p.tags?.includes("video") && p.videoUrl) {
+          const emb = youtubeEmbed(p.videoUrl);
+          if (!vw) {
+            vw = document.createElement("div"); vw.id = "videoWrap";
+            root.appendChild(vw);
+          }
+          vw.innerHTML = `<h2 class="text-2xl font-bold mt-12 mb-6">Video</h2>` + (emb
+            ? `<iframe src="${emb}" title="${p.title}" class="w-full aspect-video rounded-2xl" allow="accelerometer; autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>`
+            : `<a href="${p.videoUrl}" target="_blank" rel="noopener" class="text-lime-400 underline">Ver video</a>`);
+        } else if (vw) vw.remove();
+      })
+      .catch(() => {});
+  }
+</script>

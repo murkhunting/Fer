@@ -16,6 +16,19 @@ pnpm-debug.log*
 # environment variables
 .env
 .env.production
+.env.local
+
+# admin local (pass de prueba, no subir)
+/public/api/config.php
+
+# datos reales del cliente (el seed .svg + proyectos.json sí se commitean)
+/public/proyectos-data/**/*.jpg
+/public/proyectos-data/**/*.jpeg
+/public/proyectos-data/**/*.png
+/public/proyectos-data/**/*.webp
+/public/proyectos-data/**/*.bak
+/public/proyectos-data/**/cover.*
+!/public/proyectos-data/**/*.svg
 
 # macOS-specific files
 .DS_Store

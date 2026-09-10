@@ -9,7 +9,11 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "php:api": "php -S localhost:8001 -t public",
+    "build:hosting": "astro build && rm -f dist/api/config.php dist/api/config.example.php && echo 'dist listo sin credenciales'",
+    "sync:down": "node scripts/sync.mjs down",
+    "sync:up": "node scripts/sync.mjs up"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.3.3",
@@ -19,5 +23,8 @@
   },
   "allowScripts": {
     "esbuild": true
+  },
+  "devDependencies": {
+    "basic-ftp": "^6.2.1"
   }
 }

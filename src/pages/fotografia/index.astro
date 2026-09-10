@@ -1,28 +1,50 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { getByCategory } from "../../data/projects";
-const list = getByCategory("fotografia");
+import ProjectCard from "../../components/ProjectCard.astro";
+import type { Proyecto } from "../../lib/proyectos";
+import seed from "../../../public/proyectos-data/proyectos.json";
+
+const seedList = (seed as Proyecto[]).filter((p) => p.tags.includes("fotografia"));
 ---
 
 <Layout title="Fotografía con dron | Fer">
   <section class="pt-32 pb-12 px-6 max-w-7xl mx-auto">
     <p class="text-lime-400 uppercase tracking-[0.3em] text-sm mb-4">Portfolio</p>
     <h1 class="text-5xl md:text-7xl font-black tracking-tight">FOTOGRAFÍA</h1>
-    <p class="mt-6 max-w-xl text-neutral-400">Proyectos de fotografía aérea. Sustituiremos estas tarjetas por fotos reales.</p>
+    <p class="mt-6 max-w-xl text-neutral-400">Proyectos de fotografía — incluidos los mixtos de foto+video.</p>
   </section>
 
-  <section class="px-6 max-w-7xl mx-auto pb-20 grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {list.map((p) => (
-      <a href={`/fotografia/${p.slug}`} class="group border border-white/10 rounded-2xl overflow-hidden bg-white/[0.02] hover:border-lime-400/60 transition-colors">
-        <div class="aspect-[4/3] bg-gradient-to-br from-neutral-800 to-neutral-900 flex items-center justify-center text-5xl">
-          📷
-        </div>
-        <div class="p-6">
-          <h2 class="text-xl font-bold group-hover:text-lime-400">{p.title}</h2>
-          <p class="text-sm text-neutral-500 mt-1">{p.location} — {p.year}</p>
-          <p class="text-sm text-neutral-400 mt-3">{p.description}</p>
-        </div>
-      </a>
-    ))}
+  <section class="px-6 max-w-7xl mx-auto pb-20">
+    <div id="grid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {seedList.map((p) => <ProjectCard proyecto={p} />)}
+    </div>
+    <p id="empty" class="text-neutral-500 hidden">Aún no hay proyectos de fotografía.</p>
   </section>
 </Layout>
+
+<script>
+  import { porTag, tagLabel } from "../../lib/proyectos";
+  fetch("/proyectos-data/proyectos.json", { cache: "no-store" })
+    .then((r) => (r.ok ? r.json() : []))
+    .then((all) => {
+      const list = porTag(all, "fotografia");
+      const grid = document.getElementById("grid");
+      const empty = document.getElementById("empty");
+      if (!grid) return;
+      if (!list.length) { grid.innerHTML = ""; empty?.classList.remove("hidden"); return; }
+      grid.innerHTML = list.map((p) => `
+        <a href="/proyectos/${p.slug}" class="group border border-white/10 rounded-2xl overflow-hidden bg-white/[0.02] hover:border-lime-400/60 transition-colors">
+          <div class="aspect-[4/3] overflow-hidden bg-neutral-900">
+            <img src="${p.cover}" alt="${p.title}" loading="lazy" class="w-full h-full object-cover" />
+          </div>
+          <div class="p-6">
+            <div class="flex flex-wrap gap-2 mb-3">
+              ${(p.tags || []).map((t) => `<span class="text-[11px] uppercase tracking-wider border border-lime-400/40 text-lime-300 rounded-full px-2.5 py-0.5">${tagLabel(t)}</span>`).join("")}
+            </div>
+            <h2 class="text-xl font-bold">${p.title}</h2>
+            <p class="text-sm text-neutral-500 mt-1">${p.location ?? ""} — ${p.client ?? ""} — ${p.year ?? ""}</p>
+          </div>
+        </a>`).join("");
+    })
+    .catch(() => {});
+</script>
